@@ -2,10 +2,10 @@
 export default {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}',
+    "./pages/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}",
+    "./app/**/*.{js,jsx}",
+    "./src/**/*.{js,jsx}",
   ],
   prefix: "",
   theme: {
@@ -24,12 +24,12 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         brand: {
-          primary:   '#4F46E5', // indigo-600
-          secondary: '#8B5CF6', // violet-500
+          primary: "#4F46E5",
+          secondary: "#8B5CF6",
         },
         surface: {
-          light: '#F8FAFC', // slate-50 (default)
-          dark:  '#020617', // slate-950 (main dark background)
+          light: "#F8FAFC",
+          dark: "#020617",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -81,5 +81,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-}
+  plugins: [],
+};
