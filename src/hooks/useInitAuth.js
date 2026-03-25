@@ -6,53 +6,79 @@ import { useAuthStore } from "@/store/authStore";
 export function useInitAuth() {
   const [isInitializing, setIsInitializing] = useState(true);
   const hasInitializedRef = useRef(false);
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const setUser = useAuthStore((state) => state.setUser);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useEffect(() => {
     if (hasInitializedRef.current) {
       return undefined;
     }
 
-    hasInitializedRef.current = true;
+    const runInit = () => {
+      hasInitializedRef.current = true;
 
-    const currentPath = window.location.pathname;
-    const isPublicAuthPage =
-      currentPath === "/login" || currentPath === "/register";
+      const currentPath = window.location.pathname;
+      const isPublicAuthPage =
+        currentPath === "/login" || currentPath === "/register";
 
-    if (isPublicAuthPage) {
-      setIsInitializing(false);
-      return undefined;
-    }
+      if (isPublicAuthPage) {
+        setIsInitializing(false);
+        return;
+      }
 
-    const initializeAuth = async () => {
-      try {
-        const refreshResponse = await authService.refresh();
-        const nextToken =
-          refreshResponse?.data?.access_token ??
-          refreshResponse?.data?.accessToken ??
-          refreshResponse?.access_token ??
-          null;
+      const initializeAuth = async () => {
+        const { refreshToken, setAccessToken, setRefreshToken, setUser, clearAuth } =
+          useAuthStore.getState();
 
-        if (!nextToken) {
+        if (!refreshToken) {
+          // No token in localStorage — user is not authenticated
           clearAuth();
+          setIsInitializing(false);
           return;
         }
 
-        setAccessToken(nextToken);
+        try {
+          const refreshResponse = await authService.refresh(refreshToken);
 
-        const currentUser = await authService.getMe();
-        setUser(currentUser);
-      } catch (error) {
-        clearAuth();
-      } finally {
-        setIsInitializing(false);
-      }
+          // authService.refresh() returns the unwrapped { accessToken, refreshToken } payload
+          const nextAccessToken =
+            refreshResponse?.accessToken ?? refreshResponse?.access_token ?? null;
+          const nextRefreshToken =
+            refreshResponse?.refreshToken ?? refreshResponse?.refresh_token ?? null;
+
+          if (!nextAccessToken) {
+            clearAuth();
+            return;
+          }
+
+          setAccessToken(nextAccessToken);
+
+          if (nextRefreshToken) {
+            setRefreshToken(nextRefreshToken);
+          }
+
+          const currentUser = await authService.getMe();
+          setUser(currentUser);
+        } catch (error) {
+          clearAuth();
+        } finally {
+          setIsInitializing(false);
+        }
+      };
+
+      initializeAuth();
     };
 
-    initializeAuth();
-  }, [clearAuth, setAccessToken, setUser]);
+    // Wait for Zustand persist to finish re-hydrating from localStorage before reading tokens.
+    // Without this guard, getState().refreshToken is always null on first render
+    // even if a valid token exists in localStorage, causing a false logout on every reload.
+    if (useAuthStore.persist.hasHydrated()) {
+      runInit();
+    } else {
+      const unsub = useAuthStore.persist.onFinishHydration(() => {
+        unsub();
+        runInit();
+      });
+    }
+  }, []);
 
   return { isInitializing };
 }

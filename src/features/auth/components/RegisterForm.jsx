@@ -25,7 +25,7 @@ const registerSchema = z
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const { setAccessToken, setUser } = useAuth();
+  const { setAccessToken, setRefreshToken, setUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -55,8 +55,14 @@ export function RegisterForm() {
         registerResponse?.data?.accessToken ??
         registerResponse?.access_token;
 
+      const refreshToken =
+        registerResponse?.data?.refresh_token ??
+        registerResponse?.data?.refreshToken ??
+        registerResponse?.refresh_token;
+
       if (accessToken) {
         setAccessToken(accessToken);
+        if (refreshToken) setRefreshToken(refreshToken);
       } else {
         const loginResponse = await authService.login({
           email: values.email,
@@ -68,11 +74,17 @@ export function RegisterForm() {
           loginResponse?.data?.accessToken ??
           loginResponse?.access_token;
 
+        const fallbackRefresh =
+          loginResponse?.data?.refresh_token ??
+          loginResponse?.data?.refreshToken ??
+          loginResponse?.refresh_token;
+
         if (!fallbackToken) {
           throw new Error("Missing access token");
         }
 
         setAccessToken(fallbackToken);
+        if (fallbackRefresh) setRefreshToken(fallbackRefresh);
       }
 
       const currentUser = await authService.getMe();

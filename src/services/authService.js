@@ -24,14 +24,21 @@ export const authService = {
     const response = await axiosPublic.post(API_ROUTES.auth.login, payload);
     return response.data;
   },
-  async refresh() {
-    const response = await axiosPublic.post(API_ROUTES.auth.refresh, null, {
-      skipAuthRefresh: true,
-    });
-    return response.data;
+  async refresh(refreshToken) {
+    const response = await axiosPublic.post(
+      API_ROUTES.auth.refresh,
+      refreshToken ? { refresh_token: refreshToken } : null,
+      {
+        skipAuthRefresh: true,
+      }
+    );
+    // Unwrap envelope: backend returns { status, data: { accessToken, refreshToken }, message }
+    return response.data?.data ?? response.data;
   },
-  async logout() {
-    const response = await axiosInstance.post(API_ROUTES.auth.logout);
+  async logout(refreshToken) {
+    const response = await axiosInstance.post(API_ROUTES.auth.logout, {
+      refresh_token: refreshToken,
+    });
     return response.data;
   },
   async changePassword(payload) {

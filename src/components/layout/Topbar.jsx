@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
 import { useUiStore } from "@/store/uiStore";
 
 export function Topbar() {
@@ -16,7 +17,8 @@ export function Topbar() {
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      const refreshToken = useAuthStore.getState().refreshToken;
+      await authService.logout(refreshToken);
     } catch (error) {
       // Keep local logout even if backend is unreachable.
     } finally {

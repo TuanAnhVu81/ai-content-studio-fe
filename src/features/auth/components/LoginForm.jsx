@@ -18,7 +18,7 @@ const loginSchema = z.object({
 
 export function LoginForm({ redirectTo = "/dashboard" }) {
   const navigate = useNavigate();
-  const { setAccessToken, setUser } = useAuth();
+  const { setAccessToken, setRefreshToken, setUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -40,11 +40,20 @@ export function LoginForm({ redirectTo = "/dashboard" }) {
         loginResponse?.data?.accessToken ??
         loginResponse?.access_token;
 
+      const refreshToken =
+        loginResponse?.data?.refresh_token ??
+        loginResponse?.data?.refreshToken ??
+        loginResponse?.refresh_token;
+
       if (!accessToken) {
         throw new Error("Missing access token");
       }
 
       setAccessToken(accessToken);
+
+      if (refreshToken) {
+        setRefreshToken(refreshToken);
+      }
 
       let currentUser;
 

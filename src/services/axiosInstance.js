@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { API_ROUTES } from "@/constants/apiRoutes";
+import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/authStore";
 
 const defaultConfig = {
@@ -67,19 +68,39 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshResponse = await axiosPublic.post(API_ROUTES.auth.refresh, null, {
-        skipAuthRefresh: true,
-      });
-      const nextToken =
-        refreshResponse.data?.data?.access_token ??
-        refreshResponse.data?.data?.accessToken ??
-        refreshResponse.data?.access_token;
+      const { refreshToken, setAccessToken, setRefreshToken, clearAuth } =
+        useAuthStore.getState();
 
-      useAuthStore.getState().setAccessToken(nextToken);
-      processQueue(null, nextToken);
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const refreshResponse = await authService.refresh(refreshToken);
+
+      // authService.refresh() already returns the unwrapped { accessToken, refreshToken } payload
+      const nextAccessToken =
+        refreshResponse?.accessToken ??
+        refreshResponse?.access_token ??
+        null;
+      const nextRefreshToken =
+        refreshResponse?.refreshToken ??
+        refreshResponse?.refresh_token ??
+        null;
+
+      if (!nextAccessToken) {
+        throw new Error("Missing access token");
+      }
+
+      setAccessToken(nextAccessToken);
+
+      if (nextRefreshToken) {
+        setRefreshToken(nextRefreshToken);
+      }
+
+      processQueue(null, nextAccessToken);
 
       originalRequest.headers = originalRequest.headers ?? {};
-      originalRequest.headers.Authorization = `Bearer ${nextToken}`;
+      originalRequest.headers.Authorization = `Bearer ${nextAccessToken}`;
       return axiosInstance(originalRequest);
     } catch (refreshError) {
       useAuthStore.getState().clearAuth();
