@@ -6,6 +6,7 @@ import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
 import { AdminCampaignsPage } from "@/features/admin/pages/AdminCampaignsPage";
 import { AdminContentsPage } from "@/features/admin/pages/AdminContentsPage";
 import { AdminUsersPage } from "@/features/admin/pages/AdminUsersPage";
+import { ChangePasswordPage } from "@/features/auth/pages/ChangePasswordPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { CampaignDetailPage } from "@/features/campaign/pages/CampaignDetailPage";
@@ -18,7 +19,12 @@ import { ProtectedRoute } from "@/routes/ProtectedRoute";
 
 export function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Routes>
         <Route path="/" element={<LandingPage />} />
 
@@ -33,6 +39,7 @@ export function AppRouter() {
             <Route path="/campaigns" element={<CampaignListPage />} />
             <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
             <Route path="/editor/:id" element={<EditorPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
           </Route>
         </Route>
 

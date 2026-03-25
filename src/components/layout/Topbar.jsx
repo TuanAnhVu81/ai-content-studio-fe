@@ -1,5 +1,5 @@
 import { LogOut, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,6 +57,12 @@ export function Topbar() {
             {(user?.roles ?? ["ROLE_USER"]).join(", ")}
           </p>
         </div>
+        <Link
+          to="/change-password"
+          className="hidden rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900 dark:hover:text-white sm:inline-flex"
+        >
+          Password
+        </Link>
         <Button variant="outline" onClick={handleLogout}>
           <LogOut className="mr-2 size-4" />
           Logout

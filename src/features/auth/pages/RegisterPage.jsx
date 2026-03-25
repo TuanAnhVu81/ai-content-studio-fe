@@ -1,7 +1,6 @@
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
-import { RoutePlaceholder } from "@/components/common/RoutePlaceholder";
-import { buttonVariants } from "@/components/ui/button";
+import { RegisterForm } from "@/features/auth/components/RegisterForm";
 import { useAuth } from "@/hooks/useAuth";
 
 export function RegisterPage() {
@@ -12,24 +11,23 @@ export function RegisterPage() {
   }
 
   return (
-    <RoutePlaceholder
-      eyebrow="Authentication"
-      title="Register page scaffolded"
-      description="The app shell is ready for a full registration flow. Validation and API integration are deferred to Phase 1, but this route, layout and navigation contract are already in place."
-      primaryAction={{ to: "/login", label: "Open login page" }}
-      secondaryAction={{ to: "/", label: "Back to landing" }}
-    >
-      <div className="rounded-2xl border border-dashed border-slate-300 p-5 dark:border-slate-700">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Next phase: wire `POST /auth/register` and auto-login after account
-          creation.
-        </p>
-        <div className="mt-4">
-          <Link to="/" className={buttonVariants({ variant: "outline" })}>
-            Return home
-          </Link>
+    <section className="space-y-8">
+      <div className="space-y-3">
+        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+          Authentication
+        </span>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Create your account
+          </h1>
+          <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+            Register with your work email to start managing campaigns and AI content
+            inside one workspace.
+          </p>
         </div>
       </div>
-    </RoutePlaceholder>
+
+      <RegisterForm />
+    </section>
   );
 }

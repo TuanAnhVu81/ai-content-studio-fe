@@ -1,7 +1,6 @@
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-import { RoutePlaceholder } from "@/components/common/RoutePlaceholder";
-import { buttonVariants } from "@/components/ui/button";
+import { LoginForm } from "@/features/auth/components/LoginForm";
 import { useAuth } from "@/hooks/useAuth";
 
 export function LoginPage() {
@@ -13,24 +12,23 @@ export function LoginPage() {
   }
 
   return (
-    <RoutePlaceholder
-      eyebrow="Authentication"
-      title="Login page scaffolded"
-      description="Auth routing is in place. The actual form submission flow will land in Phase 1 using React Hook Form, Zod and the auth service already wired in this bootstrap."
-      primaryAction={{ to: "/register", label: "Open register page" }}
-      secondaryAction={{ to: "/", label: "Back to landing" }}
-    >
-      <div className="rounded-2xl border border-dashed border-slate-300 p-5 dark:border-slate-700">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Next phase: wire `POST /auth/login`, persist access token in Zustand
-          memory, then fetch `GET /auth/me`.
-        </p>
-        <div className="mt-4">
-          <Link to="/" className={buttonVariants({ variant: "outline" })}>
-            Return home
-          </Link>
+    <section className="space-y-8">
+      <div className="space-y-3">
+        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+          Authentication
+        </span>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Welcome back
+          </h1>
+          <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+            Sign in with your email and password to access your dashboard,
+            campaigns and editor workspace.
+          </p>
         </div>
       </div>
-    </RoutePlaceholder>
+
+      <LoginForm redirectTo={location.state?.from?.pathname ?? "/dashboard"} />
+    </section>
   );
 }

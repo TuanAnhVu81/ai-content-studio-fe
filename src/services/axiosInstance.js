@@ -6,6 +6,9 @@ import { useAuthStore } from "@/store/authStore";
 const defaultConfig = {
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 };
 
 export const axiosPublic = axios.create(defaultConfig);
@@ -29,6 +32,7 @@ function processQueue(error, token = null) {
 
 axiosInstance.interceptors.request.use((config) => {
   const accessToken = useAuthStore.getState().accessToken;
+  config.headers = config.headers ?? {};
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -66,11 +70,15 @@ axiosInstance.interceptors.response.use(
       const refreshResponse = await axiosPublic.post(API_ROUTES.auth.refresh, null, {
         skipAuthRefresh: true,
       });
-      const nextToken = refreshResponse.data?.access_token;
+      const nextToken =
+        refreshResponse.data?.data?.access_token ??
+        refreshResponse.data?.data?.accessToken ??
+        refreshResponse.data?.access_token;
 
       useAuthStore.getState().setAccessToken(nextToken);
       processQueue(null, nextToken);
 
+      originalRequest.headers = originalRequest.headers ?? {};
       originalRequest.headers.Authorization = `Bearer ${nextToken}`;
       return axiosInstance(originalRequest);
     } catch (refreshError) {

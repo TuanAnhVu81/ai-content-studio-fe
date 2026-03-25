@@ -17,12 +17,23 @@ export function useInitAuth() {
 
     hasInitializedRef.current = true;
 
-    let isMounted = true;
+    const currentPath = window.location.pathname;
+    const isPublicAuthPage =
+      currentPath === "/login" || currentPath === "/register";
+
+    if (isPublicAuthPage) {
+      setIsInitializing(false);
+      return undefined;
+    }
 
     const initializeAuth = async () => {
       try {
         const refreshResponse = await authService.refresh();
-        const nextToken = refreshResponse?.access_token ?? null;
+        const nextToken =
+          refreshResponse?.data?.access_token ??
+          refreshResponse?.data?.accessToken ??
+          refreshResponse?.access_token ??
+          null;
 
         if (!nextToken) {
           clearAuth();
@@ -41,10 +52,6 @@ export function useInitAuth() {
     };
 
     initializeAuth();
-
-    return () => {
-      isMounted = false;
-    };
   }, [clearAuth, setAccessToken, setUser]);
 
   return { isInitializing };
