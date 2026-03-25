@@ -36,9 +36,7 @@ export function useInitAuth() {
       } catch (error) {
         clearAuth();
       } finally {
-        if (isMounted) {
-          setIsInitializing(false);
-        }
+        setIsInitializing(false);
       }
     };
 
