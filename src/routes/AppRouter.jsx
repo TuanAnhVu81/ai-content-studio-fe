@@ -1,5 +1,7 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
+import { AppSpinner } from "@/components/common/AppSpinner";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
@@ -11,11 +13,22 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { CampaignDetailPage } from "@/features/campaign/pages/CampaignDetailPage";
 import { CampaignListPage } from "@/features/campaign/pages/CampaignListPage";
-import { EditorPage } from "@/features/content/pages/EditorPage";
 import { UserDashboardPage } from "@/features/dashboard/pages/UserDashboardPage";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
 import { AdminRoute } from "@/routes/AdminRoute";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
+
+const ContentListPage = lazy(() =>
+  import("@/features/content/pages/ContentListPage").then((module) => ({
+    default: module.ContentListPage,
+  }))
+);
+
+const EditorPage = lazy(() =>
+  import("@/features/content/pages/EditorPage").then((module) => ({
+    default: module.EditorPage,
+  }))
+);
 
 export function AppRouter() {
   return (
@@ -38,7 +51,22 @@ export function AppRouter() {
             <Route path="/dashboard" element={<UserDashboardPage />} />
             <Route path="/campaigns" element={<CampaignListPage />} />
             <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
-            <Route path="/editor/:id" element={<EditorPage />} />
+            <Route
+              path="/contents"
+              element={
+                <Suspense fallback={<AppSpinner label="Loading content workspace..." />}>
+                  <ContentListPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/editor/:id"
+              element={
+                <Suspense fallback={<AppSpinner label="Loading editor..." />}>
+                  <EditorPage />
+                </Suspense>
+              }
+            />
             <Route path="/change-password" element={<ChangePasswordPage />} />
           </Route>
         </Route>

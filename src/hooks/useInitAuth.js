@@ -16,7 +16,8 @@ export function useInitAuth() {
       hasInitializedRef.current = true;
 
       const currentPath = window.location.pathname;
-      const isPublicAuthPage = currentPath === "/login" || currentPath === "/register";
+      const publicPaths = new Set(["/", "/login", "/register"]);
+      const isPublicAuthPage = publicPaths.has(currentPath);
 
       if (isPublicAuthPage) {
         setIsInitializing(false);

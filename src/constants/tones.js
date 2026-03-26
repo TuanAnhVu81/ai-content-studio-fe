@@ -1,1 +1,1 @@
-export const tones = ["Professional", "Funny", "Persuasive", "Friendly", "Bold"];
+export const tones = ["Professional", "Funny", "Persuasive", "Friendly", "Creative", "Minimalist"];

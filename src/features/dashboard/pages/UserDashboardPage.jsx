@@ -62,7 +62,7 @@ export function UserDashboardPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
-                to="/editor/demo"
+                to="/contents"
                 className={cn(
                   buttonVariants({
                     className:
@@ -134,13 +134,13 @@ export function UserDashboardPage() {
         <StatsCard
           eyebrow="Quick action"
           title="Create new content"
-          value="Editor"
-          description="Open the protected editor route that will host generation and SEO workflows in the next phase."
+          value="Generate"
+          description="Open the content workspace to generate a draft, then move into the editor with a real content id."
           icon={BarChart3}
           accent="from-brand-secondary via-brand-primary to-sky-500"
           action={
             <Link
-              to="/editor/demo"
+              to="/contents"
               className={cn(
                 buttonVariants({
                   className:

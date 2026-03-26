@@ -99,3 +99,45 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+@layer components {
+  .content-editor .ql-toolbar.ql-snow {
+    @apply rounded-t-[1.25rem] border-slate-200 bg-slate-50;
+  }
+
+  .content-editor .ql-container.ql-snow {
+    @apply min-h-[420px] rounded-b-[1.25rem] border-slate-200 bg-white text-slate-900;
+  }
+
+  .content-editor .ql-editor {
+    @apply min-h-[420px] text-base leading-8;
+  }
+
+  .content-editor .ql-editor.ql-blank::before {
+    @apply text-slate-400 not-italic;
+  }
+
+  .dark .content-editor .ql-toolbar.ql-snow {
+    @apply border-slate-700 bg-slate-950 text-slate-100;
+  }
+
+  .dark .content-editor .ql-container.ql-snow {
+    @apply border-slate-700 bg-slate-950 text-slate-100;
+  }
+
+  .dark .content-editor .ql-editor.ql-blank::before {
+    @apply text-slate-500;
+  }
+
+  .dark .content-editor .ql-snow .ql-stroke {
+    stroke: rgb(226 232 240);
+  }
+
+  .dark .content-editor .ql-snow .ql-fill {
+    fill: rgb(226 232 240);
+  }
+
+  .dark .content-editor .ql-snow .ql-picker {
+    color: rgb(226 232 240);
+  }
+}

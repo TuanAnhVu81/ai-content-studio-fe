@@ -5,6 +5,8 @@ export const queryKeys = {
     list: (filters = {}) => ["campaigns", "list", filters],
   },
   contents: {
+    all: ["contents"],
+    list: (filters = {}) => ["contents", "list", filters],
     byCampaign: (campaignId, filters = {}) => [
       "contents",
       "campaign",

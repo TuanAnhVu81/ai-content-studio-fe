@@ -55,7 +55,7 @@ export function RecentActivityList({ contents }) {
         </div>
 
         <Link
-          to="/campaigns"
+          to="/contents"
           className={cn(buttonVariants({ variant: "outline" }))}
         >
           View all

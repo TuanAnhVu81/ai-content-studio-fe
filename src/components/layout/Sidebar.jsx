@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const userLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/campaigns", label: "Campaigns", icon: FolderKanban },
-  { to: "/editor/demo", label: "Editor", icon: Sparkles },
+  { to: "/contents", label: "Editor", icon: Sparkles },
 ];
 
 const adminLinks = [
