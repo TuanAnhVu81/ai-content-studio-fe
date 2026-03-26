@@ -43,14 +43,6 @@ export function Topbar() {
             <PanelLeftClose className="size-4" />
           )}
         </Button>
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
-            Infrastructure
-          </p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-            React shell wired for Phase 1+
-          </p>
-        </div>
       </div>
 
       <div className="flex items-center gap-3">

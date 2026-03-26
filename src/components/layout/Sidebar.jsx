@@ -34,10 +34,7 @@ export function Sidebar({ collapsed = false, isAdmin = false }) {
           AI
         </div>
         {!collapsed ? (
-          <div className="space-y-0.5">
-            <div className="text-sm font-semibold">AI Content Studio</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">Phase 0 shell</div>
-          </div>
+          <div className="text-sm font-semibold">AI Content Studio</div>
         ) : null}
       </Link>
 
