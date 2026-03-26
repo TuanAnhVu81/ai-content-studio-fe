@@ -18,7 +18,7 @@ const loginSchema = z.object({
 
 export function LoginForm({ redirectTo = "/dashboard" }) {
   const navigate = useNavigate();
-  const { setAccessToken, setRefreshToken, setUser } = useAuth();
+  const { setAccessToken, setUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -36,39 +36,16 @@ export function LoginForm({ redirectTo = "/dashboard" }) {
     try {
       const loginResponse = await authService.login(values);
       const accessToken =
-        loginResponse?.data?.access_token ??
-        loginResponse?.data?.accessToken ??
-        loginResponse?.access_token;
-
-      const refreshToken =
-        loginResponse?.data?.refresh_token ??
-        loginResponse?.data?.refreshToken ??
-        loginResponse?.refresh_token;
+        loginResponse?.access_token ??
+        loginResponse?.accessToken ??
+        null;
 
       if (!accessToken) {
         throw new Error("Missing access token");
       }
 
       setAccessToken(accessToken);
-
-      if (refreshToken) {
-        setRefreshToken(refreshToken);
-      }
-
-      let currentUser;
-
-      try {
-        currentUser = await authService.getMe();
-      } catch (error) {
-        throw new Error(
-          getApiErrorMessage(
-            error,
-            "Signed in, but failed to load your profile from /auth/me."
-          )
-        );
-      }
-
-      setUser(currentUser);
+      setUser(loginResponse?.user ?? (await authService.getMe()));
 
       navigate(redirectTo, { replace: true });
     } catch (error) {

@@ -1,11 +1,12 @@
-import { LogOut, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "lucide-react";
+import { LoaderCircle, LogOut, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/services/authService";
-import { useAuthStore } from "@/store/authStore";
 import { useUiStore } from "@/store/uiStore";
+import { getApiErrorMessage } from "@/utils/getApiErrorMessage";
 
 export function Topbar() {
   const navigate = useNavigate();
@@ -14,16 +15,21 @@ export function Topbar() {
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const theme = useUiStore((state) => state.theme);
   const toggleTheme = useUiStore((state) => state.toggleTheme);
+  const [logoutError, setLogoutError] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setLogoutError("");
+    setIsLoggingOut(true);
+
     try {
-      const refreshToken = useAuthStore.getState().refreshToken;
-      await authService.logout(refreshToken);
-    } catch (error) {
-      // Keep local logout even if backend is unreachable.
-    } finally {
+      await authService.logout();
       clearAuth();
       navigate("/login", { replace: true });
+    } catch (error) {
+      setLogoutError(getApiErrorMessage(error, "Logout failed. Please try again."));
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -48,6 +54,11 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-3">
+        {logoutError ? (
+          <p className="hidden max-w-xs text-right text-xs text-red-600 dark:text-red-400 lg:block">
+            {logoutError}
+          </p>
+        ) : null}
         <Button variant="outline" size="icon-sm" onClick={toggleTheme}>
           {theme === "light" ? <Moon className="size-4" /> : <Sun className="size-4" />}
         </Button>
@@ -65,9 +76,13 @@ export function Topbar() {
         >
           Password
         </Link>
-        <Button variant="outline" onClick={handleLogout}>
-          <LogOut className="mr-2 size-4" />
-          Logout
+        <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>
+          {isLoggingOut ? (
+            <LoaderCircle className="mr-2 size-4 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 size-4" />
+          )}
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </Button>
       </div>
     </header>

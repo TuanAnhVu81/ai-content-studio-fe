@@ -1,5 +1,14 @@
 import { API_ROUTES } from "@/constants/apiRoutes";
-import { axiosInstance, axiosPublic } from "@/services/axiosInstance";
+import {
+  axiosInstance,
+  axiosPublic,
+  ensureCsrfToken,
+  resetCsrfToken,
+} from "@/services/axiosInstance";
+
+function unwrapPayload(payload) {
+  return payload?.data ?? payload ?? {};
+}
 
 function normalizeUser(user) {
   if (!user) {
@@ -15,33 +24,41 @@ function normalizeUser(user) {
   };
 }
 
+function normalizeAuthSession(payload) {
+  const data = unwrapPayload(payload);
+
+  return {
+    access_token: data?.access_token ?? data?.accessToken ?? null,
+    token_type: data?.token_type ?? data?.tokenType ?? "Bearer",
+    user: normalizeUser(data?.user),
+  };
+}
+
 export const authService = {
   async register(payload) {
     const response = await axiosPublic.post(API_ROUTES.auth.register, payload);
     return response.data;
   },
   async login(payload) {
+    await ensureCsrfToken({ forceRefresh: true });
     const response = await axiosPublic.post(API_ROUTES.auth.login, payload);
-    return response.data;
+    return normalizeAuthSession(response.data);
   },
-  async refresh(refreshToken) {
-    const response = await axiosPublic.post(
-      API_ROUTES.auth.refresh,
-      refreshToken ? { refresh_token: refreshToken } : null,
-      {
-        skipAuthRefresh: true,
-      }
-    );
-    // Unwrap envelope: backend returns { status, data: { accessToken, refreshToken }, message }
-    return response.data?.data ?? response.data;
-  },
-  async logout(refreshToken) {
-    const response = await axiosInstance.post(API_ROUTES.auth.logout, {
-      refresh_token: refreshToken,
+  async refresh() {
+    await ensureCsrfToken();
+    const response = await axiosPublic.post(API_ROUTES.auth.refresh, null, {
+      skipAuthRefresh: true,
     });
+    return normalizeAuthSession(response.data);
+  },
+  async logout() {
+    await ensureCsrfToken({ forceRefresh: true });
+    const response = await axiosInstance.post(API_ROUTES.auth.logout);
+    resetCsrfToken();
     return response.data;
   },
   async changePassword(payload) {
+    await ensureCsrfToken();
     const response = await axiosInstance.patch(API_ROUTES.auth.changePassword, payload);
     return response.data;
   },

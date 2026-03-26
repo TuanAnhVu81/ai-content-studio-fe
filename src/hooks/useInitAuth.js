@@ -16,8 +16,7 @@ export function useInitAuth() {
       hasInitializedRef.current = true;
 
       const currentPath = window.location.pathname;
-      const isPublicAuthPage =
-        currentPath === "/login" || currentPath === "/register";
+      const isPublicAuthPage = currentPath === "/login" || currentPath === "/register";
 
       if (isPublicAuthPage) {
         setIsInitializing(false);
@@ -25,24 +24,12 @@ export function useInitAuth() {
       }
 
       const initializeAuth = async () => {
-        const { refreshToken, setAccessToken, setRefreshToken, setUser, clearAuth } =
-          useAuthStore.getState();
-
-        if (!refreshToken) {
-          // No token in localStorage — user is not authenticated
-          clearAuth();
-          setIsInitializing(false);
-          return;
-        }
+        const { setAccessToken, setUser, clearAuth } = useAuthStore.getState();
 
         try {
-          const refreshResponse = await authService.refresh(refreshToken);
-
-          // authService.refresh() returns the unwrapped { accessToken, refreshToken } payload
+          const refreshResponse = await authService.refresh();
           const nextAccessToken =
             refreshResponse?.accessToken ?? refreshResponse?.access_token ?? null;
-          const nextRefreshToken =
-            refreshResponse?.refreshToken ?? refreshResponse?.refresh_token ?? null;
 
           if (!nextAccessToken) {
             clearAuth();
@@ -50,13 +37,7 @@ export function useInitAuth() {
           }
 
           setAccessToken(nextAccessToken);
-
-          if (nextRefreshToken) {
-            setRefreshToken(nextRefreshToken);
-          }
-
-          const currentUser = await authService.getMe();
-          setUser(currentUser);
+          setUser(refreshResponse?.user ?? (await authService.getMe()));
         } catch (error) {
           clearAuth();
         } finally {
@@ -67,9 +48,7 @@ export function useInitAuth() {
       initializeAuth();
     };
 
-    // Wait for Zustand persist to finish re-hydrating from localStorage before reading tokens.
-    // Without this guard, getState().refreshToken is always null on first render
-    // even if a valid token exists in localStorage, causing a false logout on every reload.
+    // Wait for Zustand persist bootstrapping before auth init starts.
     if (useAuthStore.persist.hasHydrated()) {
       runInit();
     } else {

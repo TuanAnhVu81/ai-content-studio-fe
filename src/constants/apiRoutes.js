@@ -1,5 +1,6 @@
 export const API_ROUTES = {
   auth: {
+    csrf: "/auth/csrf",
     register: "/auth/register",
     login: "/auth/login",
     refresh: "/auth/refresh",

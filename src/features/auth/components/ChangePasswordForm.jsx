@@ -3,8 +3,10 @@ import { CheckCircle2, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/services/authService";
 import { getApiErrorMessage } from "@/utils/getApiErrorMessage";
 import { PasswordField } from "@/features/auth/components/PasswordField";
@@ -21,6 +23,8 @@ const changePasswordSchema = z
   });
 
 export function ChangePasswordForm() {
+  const navigate = useNavigate();
+  const { clearAuth } = useAuth();
   const [successMessage, setSuccessMessage] = useState("");
   const {
     register,
@@ -42,7 +46,9 @@ export function ChangePasswordForm() {
       setSuccessMessage("");
       await authService.changePassword(values);
       reset();
-      setSuccessMessage("Password updated successfully.");
+      clearAuth();
+      setSuccessMessage("Password updated successfully. Please sign in again.");
+      navigate("/login", { replace: true });
     } catch (error) {
       setError("root", {
         message: getApiErrorMessage(error, "Unable to update your password."),

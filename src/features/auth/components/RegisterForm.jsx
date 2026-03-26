@@ -25,7 +25,7 @@ const registerSchema = z
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const { setAccessToken, setRefreshToken, setUser } = useAuth();
+  const { setAccessToken, setUser } = useAuth();
   const {
     register,
     handleSubmit,
@@ -49,46 +49,23 @@ export function RegisterForm() {
     };
 
     try {
-      const registerResponse = await authService.register(payload);
+      await authService.register(payload);
+      const loginResponse = await authService.login({
+        email: values.email,
+        password: values.password,
+      });
+
       const accessToken =
-        registerResponse?.data?.access_token ??
-        registerResponse?.data?.accessToken ??
-        registerResponse?.access_token;
+        loginResponse?.access_token ??
+        loginResponse?.accessToken ??
+        null;
 
-      const refreshToken =
-        registerResponse?.data?.refresh_token ??
-        registerResponse?.data?.refreshToken ??
-        registerResponse?.refresh_token;
-
-      if (accessToken) {
-        setAccessToken(accessToken);
-        if (refreshToken) setRefreshToken(refreshToken);
-      } else {
-        const loginResponse = await authService.login({
-          email: values.email,
-          password: values.password,
-        });
-
-        const fallbackToken =
-          loginResponse?.data?.access_token ??
-          loginResponse?.data?.accessToken ??
-          loginResponse?.access_token;
-
-        const fallbackRefresh =
-          loginResponse?.data?.refresh_token ??
-          loginResponse?.data?.refreshToken ??
-          loginResponse?.refresh_token;
-
-        if (!fallbackToken) {
-          throw new Error("Missing access token");
-        }
-
-        setAccessToken(fallbackToken);
-        if (fallbackRefresh) setRefreshToken(fallbackRefresh);
+      if (!accessToken) {
+        throw new Error("Missing access token");
       }
 
-      const currentUser = await authService.getMe();
-      setUser(currentUser);
+      setAccessToken(accessToken);
+      setUser(loginResponse?.user ?? (await authService.getMe()));
 
       navigate("/dashboard", { replace: true });
     } catch (error) {
