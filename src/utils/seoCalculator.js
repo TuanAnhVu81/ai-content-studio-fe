@@ -2,6 +2,10 @@ function extractPlainText(document) {
   return document.body?.textContent?.replace(/\s+/g, " ").trim() ?? "";
 }
 
+function normalizeTextInput(value) {
+  return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+}
+
 function countKeywordOccurrences(text, keyword) {
   if (!text || !keyword) {
     return 0;
@@ -18,7 +22,7 @@ function countKeywordOccurrences(text, keyword) {
 }
 
 function normalizeLength(value) {
-  return typeof value === "string" ? value.trim().length : 0;
+  return normalizeTextInput(value).length;
 }
 
 export function seoCalculator({
@@ -36,7 +40,9 @@ export function seoCalculator({
   const plainText = extractPlainText(document);
   const words = plainText ? plainText.split(/\s+/).filter(Boolean) : [];
   const wordCount = words.length;
-  const normalizedKeyword = keyword?.trim() ?? "";
+  const normalizedKeyword = normalizeTextInput(keyword);
+  const normalizedMetaTitle = normalizeTextInput(metaTitle);
+  const normalizedMetaDescription = normalizeTextInput(metaDescription);
 
   const h1Text = document.querySelector("h1")?.textContent?.toLowerCase() ?? "";
   const h2Count = document.querySelectorAll("h2").length;
@@ -50,16 +56,16 @@ export function seoCalculator({
     wordCount > 0 ? Number((((keywordCount / wordCount) * 100) || 0).toFixed(2)) : 0;
   const densityValid = keywordDensity >= 1 && keywordDensity <= 3;
   const wordCountValid = wordCount >= 300;
-  const metaTitleLength = normalizeLength(metaTitle);
-  const metaDescriptionLength = normalizeLength(metaDescription);
+  const metaTitleLength = normalizeLength(normalizedMetaTitle);
+  const metaDescriptionLength = normalizeLength(normalizedMetaDescription);
   const metaTitleValid =
     metaTitleLength >= 50 &&
     metaTitleLength <= 60 &&
-    metaTitle.toLowerCase().includes(normalizedKeyword.toLowerCase());
+    normalizedMetaTitle.toLowerCase().includes(normalizedKeyword.toLowerCase());
   const metaDescriptionValid =
     metaDescriptionLength >= 120 &&
     metaDescriptionLength <= 160 &&
-    metaDescription.toLowerCase().includes(normalizedKeyword.toLowerCase());
+    normalizedMetaDescription.toLowerCase().includes(normalizedKeyword.toLowerCase());
 
   let score = 0;
 
@@ -93,10 +99,12 @@ export function seoCalculator({
     has_h1: hasH1,
     has_h2: hasH2,
     word_count: wordCount,
-    meta_title: metaTitle,
-    meta_description: metaDescription,
+    meta_title: normalizedMetaTitle,
+    meta_description: normalizedMetaDescription,
     meta_title_valid: metaTitleValid,
     meta_description_valid: metaDescriptionValid,
     suggestions,
   };
 }
+
+export { normalizeTextInput, normalizeLength };

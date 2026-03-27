@@ -23,6 +23,8 @@ export function UserDashboardPage() {
   const dashboardQuery = useQuery({
     queryKey: queryKeys.dashboard.user,
     queryFn: dashboardService.getUserDashboard,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const recentContents = dashboardQuery.data?.recent_contents ?? [];

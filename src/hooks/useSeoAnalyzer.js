@@ -14,6 +14,7 @@ export function useSeoAnalyzer({
       ? seoCalculator({ htmlContent, keyword, metaTitle, metaDescription })
       : null
   );
+  const stableMetaKey = `${metaTitle}::${metaDescription}::${keyword}`;
 
   const debouncedAnalyze = useMemo(
     () =>
@@ -34,7 +35,16 @@ export function useSeoAnalyzer({
     return () => {
       debouncedAnalyze.cancel();
     };
-  }, [debouncedAnalyze, htmlContent, keyword, metaTitle, metaDescription]);
+  }, [debouncedAnalyze, htmlContent]);
+
+  useEffect(() => {
+    if (!htmlContent?.trim()) {
+      setAnalysis(null);
+      return;
+    }
+
+    setAnalysis(seoCalculator({ htmlContent, keyword, metaTitle, metaDescription }));
+  }, [stableMetaKey]);
 
   return analysis;
 }

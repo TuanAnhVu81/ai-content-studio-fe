@@ -38,7 +38,9 @@ function normalizeDashboard(payload) {
     total_campaigns: toSafeNumber(data.total_campaigns ?? data.totalCampaigns),
     total_contents: toSafeNumber(data.total_contents ?? data.totalContents),
     total_tokens_used_30_days: toSafeNumber(
-      data.total_tokens_used_30_days ?? data.totalTokensUsed30Days
+      data.total_tokens_used_30_days ??
+        data.total_tokens_used30_days ??
+        data.totalTokensUsed30Days
     ),
     recent_contents: recentContents.map(normalizeRecentContent).filter(Boolean),
   };

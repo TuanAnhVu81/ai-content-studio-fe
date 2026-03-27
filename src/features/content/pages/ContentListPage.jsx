@@ -180,7 +180,10 @@ export function ContentListPage() {
     onSuccess: async (content) => {
       setSubmitError("");
       setFeedbackMessage("Content draft generated successfully.");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.contents.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.contents.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.user }),
+      ]);
       navigate(`/editor/${content.id}`);
     },
     onError: (error) => {
@@ -193,7 +196,10 @@ export function ContentListPage() {
   const deleteMutation = useMutation({
     mutationFn: contentService.deleteContent,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.contents.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.contents.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.user }),
+      ]);
     },
   });
 

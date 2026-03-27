@@ -25,7 +25,7 @@ export function Topbar() {
     try {
       await authService.logout();
       clearAuth();
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       setLogoutError(getApiErrorMessage(error, "Logout failed. Please try again."));
     } finally {

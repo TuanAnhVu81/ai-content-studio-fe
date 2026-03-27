@@ -1,16 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, LoaderCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { buttonVariants } from "@/components/ui/button";
 import { AppSpinner } from "@/components/common/AppSpinner";
 import { queryKeys } from "@/constants/queryKeys";
+import { BannerPreview } from "@/features/content/components/BannerPreview";
 import { ContentEditor } from "@/features/content/components/ContentEditor";
 import { SeoSidebar } from "@/features/content/components/SeoSidebar";
+import { useBannerExport } from "@/hooks/useBannerExport";
 import { useSeoAnalyzer } from "@/hooks/useSeoAnalyzer";
 import { contentService } from "@/services/contentService";
 import { normalizeGeneratedContent } from "@/utils/normalizeGeneratedContent";
+import { normalizeLength } from "@/utils/seoCalculator";
 import { getApiErrorMessage } from "@/utils/getApiErrorMessage";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +28,7 @@ function normalizeEditorDraft(content) {
 export function EditorPage() {
   const queryClient = useQueryClient();
   const { id } = useParams();
+  const bannerRef = useRef(null);
   const [draft, setDraft] = useState({
     generatedText: "",
     metaTitle: "",
@@ -32,7 +36,9 @@ export function EditorPage() {
   });
   const [submitError, setSubmitError] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [bannerTemplate, setBannerTemplate] = useState("feed");
   const latestSavedRef = useRef(draft);
+  const { isExporting, exportAndSave } = useBannerExport();
 
   const contentQuery = useQuery({
     queryKey: queryKeys.contents.detail(id),
@@ -115,6 +121,21 @@ export function EditorPage() {
   }
 
   const content = contentQuery.data;
+
+  const handleBannerExport = async () => {
+    setSubmitError("");
+    setFeedbackMessage("");
+
+    try {
+      await exportAndSave(bannerRef, id, {
+        fileName: content.target_keyword || content.campaign_name || "content-banner",
+        template: bannerTemplate,
+      });
+      setFeedbackMessage("Banner exported, uploaded, and saved successfully.");
+    } catch (error) {
+      setSubmitError(getApiErrorMessage(error, "Unable to export and save banner."));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -255,7 +276,7 @@ export function EditorPage() {
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 />
                 <div className="text-xs text-slate-500 dark:text-slate-400">
-                  {draft.metaTitle.length}/60 characters
+                  {normalizeLength(draft.metaTitle)}/60 characters
                 </div>
               </label>
 
@@ -276,7 +297,7 @@ export function EditorPage() {
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 />
                 <div className="text-xs text-slate-500 dark:text-slate-400">
-                  {draft.metaDescription.length}/160 characters
+                  {normalizeLength(draft.metaDescription)}/160 characters
                 </div>
               </label>
             </div>
@@ -293,7 +314,99 @@ export function EditorPage() {
           />
         </div>
 
-        <SeoSidebar analysis={analysis} />
+        <div className="space-y-5">
+          <SeoSidebar analysis={analysis} />
+
+          <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                Banner preview
+              </span>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                    Export a campaign creative from this draft.
+                  </h2>
+                  <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    Preview the generated headline, choose a format, then upload the
+                    exported asset to Cloudinary and persist the final `banner_url`.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950/60">
+                  {["feed", "story"].map((templateOption) => {
+                    const isActive = bannerTemplate === templateOption;
+
+                    return (
+                      <button
+                        key={templateOption}
+                        type="button"
+                        onClick={() => setBannerTemplate(templateOption)}
+                        className={cn(
+                          "rounded-full px-4 py-2 text-sm font-semibold transition",
+                          isActive
+                            ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                            : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+                        )}
+                      >
+                        {templateOption === "feed" ? "Feed" : "Story"}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  {content.banner_url ? (
+                    <a
+                      href={content.banner_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={cn(buttonVariants({ variant: "outline" }))}
+                    >
+                      <ExternalLink className="mr-2 size-4" />
+                      Open saved banner
+                    </a>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={cn(
+                      buttonVariants({
+                        className:
+                          "bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200",
+                      })
+                    )}
+                    onClick={handleBannerExport}
+                    disabled={isExporting || !draft.generatedText.trim()}
+                  >
+                    {isExporting ? (
+                      <>
+                        <LoaderCircle className="mr-2 size-4 animate-spin" />
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 size-4" />
+                        Export & save banner
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <BannerPreview
+                ref={bannerRef}
+                template={bannerTemplate}
+                htmlContent={draft.generatedText}
+                fallbackHeadline={content.target_keyword || "Campaign banner"}
+                fallbackSubtext={draft.metaDescription || content.campaign_name}
+              />
+            </div>
+          </section>
+        </div>
       </section>
     </div>
   );

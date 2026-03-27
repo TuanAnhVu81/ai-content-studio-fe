@@ -148,6 +148,13 @@ export const contentService = {
 
     return normalizeContent(unwrapPayload(response.data));
   },
+  async updateBanner(id, bannerUrl) {
+    const response = await axiosInstance.put(API_ROUTES.contents.banner(id), {
+      banner_url: bannerUrl,
+    });
+
+    return normalizeContent(unwrapPayload(response.data));
+  },
   async deleteContent(id) {
     await axiosInstance.delete(API_ROUTES.contents.detail(id));
     return true;
