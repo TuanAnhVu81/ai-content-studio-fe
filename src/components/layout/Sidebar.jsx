@@ -1,4 +1,12 @@
-import { FolderKanban, LayoutDashboard, Shield, Sparkles } from "lucide-react";
+import {
+  Activity,
+  FileText,
+  FolderKanban,
+  LayoutDashboard,
+  Shield,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -10,10 +18,11 @@ const userLinks = [
 ];
 
 const adminLinks = [
-  { to: "/admin", label: "Admin", icon: Shield },
-  { to: "/admin/users", label: "Users", icon: Shield },
-  { to: "/admin/campaigns", label: "Campaigns", icon: Shield },
-  { to: "/admin/contents", label: "Contents", icon: Shield },
+  { to: "/admin", label: "Admin", icon: Shield, end: true },
+  { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/campaigns", label: "Campaigns", icon: FolderKanban },
+  { to: "/admin/contents", label: "Contents", icon: FileText },
+  { to: "/admin/ai-usage", label: "AI Usage", icon: Activity },
 ];
 
 export function Sidebar({ collapsed = false, isAdmin = false }) {
@@ -46,6 +55,7 @@ export function Sidebar({ collapsed = false, isAdmin = false }) {
             <NavLink
               key={`${link.to}-${link.label}`}
               to={link.to}
+              end={link.end}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors",

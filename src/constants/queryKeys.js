@@ -22,7 +22,7 @@ export const queryKeys = {
     users: (filters = {}) => ["admin", "users", filters],
     campaigns: (filters = {}) => ["admin", "campaigns", filters],
     aiStats: (dateRange = {}) => ["admin", "ai-stats", dateRange],
-    topUsers: ["admin", "top-users"],
+    topUsers: (dateRange = {}) => ["admin", "top-users", dateRange],
     recentContents: ["admin", "recent-contents"],
   },
 };

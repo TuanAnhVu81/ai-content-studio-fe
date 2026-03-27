@@ -7,9 +7,6 @@ export function AuthLayout() {
         <div className="grid w-full overflow-hidden rounded-[32px] border border-white/60 bg-white/80 shadow-2xl backdrop-blur dark:border-slate-800/80 dark:bg-slate-950/80 md:grid-cols-[1.1fr_0.9fr]">
           <div className="hidden border-r border-slate-200/80 bg-slate-900 p-10 text-white dark:border-slate-800 md:block">
             <div className="space-y-6">
-              <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200">
-                Phase 0
-              </span>
               <div className="space-y-3">
                 <h1 className="text-4xl font-semibold tracking-tight text-white">
                   Bootstrap the product shell before features land.

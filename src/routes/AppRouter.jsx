@@ -7,6 +7,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
 import { AdminCampaignsPage } from "@/features/admin/pages/AdminCampaignsPage";
 import { AdminContentsPage } from "@/features/admin/pages/AdminContentsPage";
+import { AdminAiUsagePage } from "@/features/admin/pages/AdminAiUsagePage";
 import { AdminUsersPage } from "@/features/admin/pages/AdminUsersPage";
 import { ChangePasswordPage } from "@/features/auth/pages/ChangePasswordPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
@@ -77,6 +78,7 @@ export function AppRouter() {
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/campaigns" element={<AdminCampaignsPage />} />
             <Route path="/admin/contents" element={<AdminContentsPage />} />
+            <Route path="/admin/ai-usage" element={<AdminAiUsagePage />} />
           </Route>
         </Route>
 
