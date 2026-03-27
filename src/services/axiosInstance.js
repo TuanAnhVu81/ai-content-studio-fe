@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { API_ROUTES } from "@/constants/apiRoutes";
+import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/store/authStore";
 
 const defaultConfig = {
@@ -165,6 +166,7 @@ axiosInstance.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${nextAccessToken}`;
       return axiosInstance(originalRequest);
     } catch (refreshError) {
+      queryClient.clear();
       useAuthStore.getState().clearAuth();
       processQueue(refreshError, null);
 

@@ -328,8 +328,8 @@ export function EditorPage() {
                     Export a campaign creative from this draft.
                   </h2>
                   <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                    Preview the generated headline, choose a format, then upload the
-                    exported asset to Cloudinary and persist the final `banner_url`.
+                    Preview the headline and supporting copy, choose a format, then
+                    export a ready-to-share banner for this content record.
                   </p>
                 </div>
               </div>

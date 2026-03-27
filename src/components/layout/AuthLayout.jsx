@@ -9,12 +9,11 @@ export function AuthLayout() {
             <div className="space-y-6">
               <div className="space-y-3">
                 <h1 className="text-4xl font-semibold tracking-tight text-white">
-                  Bootstrap the product shell before features land.
+                  Create and manage AI-assisted content in one workspace.
                 </h1>
                 <p className="max-w-md text-sm leading-7 text-slate-300">
-                  Auth routes, protected navigation, request pipeline and app state are
-                  ready. The feature work in later phases can plug into this shell
-                  directly.
+                  Sign in to access campaign planning, AI content generation, SEO
+                  guidance, banner previews, and admin tools from a single studio.
                 </p>
               </div>
             </div>

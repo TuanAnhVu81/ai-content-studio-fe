@@ -100,8 +100,8 @@ export function GenerateForm({
           Start with campaign context instead of writing prompts manually.
         </h2>
         <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-          Choose a campaign, keyword and tone. The backend will create a draft content
-          record, then the editor can continue refining it.
+          Choose a campaign, keyword, and tone to generate a draft you can refine in
+          the editor right away.
         </p>
       </div>
 

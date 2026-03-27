@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,6 +26,7 @@ const registerSchema = z
 
 export function RegisterForm() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { setAccessToken, setUser } = useAuth();
   const {
     register,
@@ -64,6 +66,7 @@ export function RegisterForm() {
         throw new Error("Missing access token");
       }
 
+      queryClient.clear();
       setAccessToken(accessToken);
       setUser(loginResponse?.user ?? (await authService.getMe()));
 

@@ -70,8 +70,8 @@ export function RecentActivityList({ contents }) {
                 No recent content yet.
               </h3>
               <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Once content generation is in use, the five most recent records will appear
-                here with campaign context and editor shortcuts.
+                Once drafts are generated, the latest items will appear here with
+                campaign context and quick links back into the editor.
               </p>
             </div>
           </div>

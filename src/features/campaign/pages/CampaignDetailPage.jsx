@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { buttonVariants } from "@/components/ui/button";
 import { queryKeys } from "@/constants/queryKeys";
@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/utils/getApiErrorMessage";
 
 export function CampaignDetailPage() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { id } = useParams();
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -72,13 +71,6 @@ export function CampaignDetailPage() {
           <ArrowLeft className="mr-1 size-4" />
           Back to campaigns
         </Link>
-        <button
-          type="button"
-          className={cn(buttonVariants({ variant: "outline" }))}
-          onClick={() => navigate("/campaigns")}
-        >
-          Return to list
-        </button>
       </div>
 
       {feedbackMessage ? (
@@ -90,7 +82,7 @@ export function CampaignDetailPage() {
       <CampaignForm
         mode="edit"
         title={`Edit ${campaignQuery.data.name}`}
-        description="Update the campaign name, lifecycle status and metadata. Changes are sent to the backend using snake_case fields."
+        description="Update the campaign name, lifecycle status, and supporting metadata before generating new content."
         initialValues={campaignQuery.data}
         isSubmitting={updateMutation.isPending}
         submitLabel="Save changes"

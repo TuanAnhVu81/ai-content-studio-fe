@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,6 +25,7 @@ const changePasswordSchema = z
 
 export function ChangePasswordForm() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { clearAuth } = useAuth();
   const [successMessage, setSuccessMessage] = useState("");
   const {
@@ -46,6 +48,7 @@ export function ChangePasswordForm() {
       setSuccessMessage("");
       await authService.changePassword(values);
       reset();
+      queryClient.clear();
       clearAuth();
       setSuccessMessage("Password updated successfully. Please sign in again.");
       navigate("/login", { replace: true });

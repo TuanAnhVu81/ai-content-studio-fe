@@ -40,8 +40,8 @@ export function MonthlyUsageBar({ totalTokensUsed }) {
           Track the AI workload handled in the last 30 days.
         </h2>
         <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-          The backend currently exposes a 30-day absolute token total, so the dashboard
-          shows a usage meter and the exact count instead of a quota-specific chart.
+          Use this view to understand how active the workspace has been recently and
+          how much AI generation volume has been handled over the last month.
         </p>
       </div>
 
@@ -60,7 +60,7 @@ export function MonthlyUsageBar({ totalTokensUsed }) {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-            <span>Activity indicator</span>
+            <span>Usage meter</span>
             <span>Last 30 days</span>
           </div>
           <div className="h-3 rounded-full bg-slate-100 dark:bg-slate-800">

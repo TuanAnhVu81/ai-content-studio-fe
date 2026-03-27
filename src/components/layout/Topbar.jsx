@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle, LogOut, Moon, PanelLeftClose, PanelLeftOpen, Sun } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ import { getApiErrorMessage } from "@/utils/getApiErrorMessage";
 
 export function Topbar() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, clearAuth } = useAuth();
   const isSidebarCollapsed = useUiStore((state) => state.isSidebarCollapsed);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
@@ -24,6 +26,7 @@ export function Topbar() {
 
     try {
       await authService.logout();
+      queryClient.clear();
       clearAuth();
       navigate("/", { replace: true });
     } catch (error) {

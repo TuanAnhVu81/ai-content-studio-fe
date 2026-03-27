@@ -38,6 +38,12 @@ function trimClauseEnding(value) {
   return value.replace(/[,:;/-]+$/g, "").trim();
 }
 
+function containsVietnameseText(value) {
+  return /[àáạảãăằắặẳẵâầấậẩẫđèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]/i.test(
+    value || ""
+  );
+}
+
 function buildShortHeadline(value, maxChars) {
   const normalized = normalizeWhitespace(value);
 
@@ -135,6 +141,12 @@ export const BannerPreview = forwardRef(function BannerPreview(
 
   const config = templateConfig[template] ?? templateConfig.feed;
   const headlineLength = copy.headline.length;
+  const ctaLabel =
+    containsVietnameseText(`${copy.headline} ${copy.subtext}`) ||
+    containsVietnameseText(fallbackHeadline) ||
+    containsVietnameseText(fallbackSubtext)
+      ? "Khám phá ngay"
+      : "Discover more";
   const headlineClassName =
     template === "story"
       ? headlineLength > 40
@@ -188,7 +200,7 @@ export const BannerPreview = forwardRef(function BannerPreview(
 
             <div className="pt-4">
               <div className="inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_12px_30px_rgba(255,255,255,0.15)]">
-                Discover more
+                {ctaLabel}
               </div>
             </div>
           </div>

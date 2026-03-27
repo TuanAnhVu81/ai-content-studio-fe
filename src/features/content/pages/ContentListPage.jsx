@@ -249,8 +249,8 @@ export function ContentListPage() {
               Review generated drafts by campaign.
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This list uses the same campaign filter as the generate form so the user
-              can move between draft generation and manual editing without losing context.
+              Stay focused on one campaign while moving between draft generation and
+              manual editing.
             </p>
           </div>
           <div className="space-y-4 p-6">
@@ -265,8 +265,8 @@ export function ContentListPage() {
             </div>
 
             <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-600 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-300">
-              Generate creates a backend content record immediately. Successful requests
-              redirect straight to the editor route for deeper SEO refinement and save.
+              Generate a draft here, then jump straight into the editor to refine the
+              copy, improve SEO, and save the final version.
             </div>
           </div>
         </section>
@@ -306,8 +306,8 @@ export function ContentListPage() {
                 Create a campaign before generating content.
               </h3>
               <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                The backend requires `campaign_id` for generation, so the content workspace
-                only becomes active after campaign setup.
+                Create a campaign first so new drafts can be grouped, reviewed, and
+                managed in the right workspace.
               </p>
               <Link
                 to="/campaigns"

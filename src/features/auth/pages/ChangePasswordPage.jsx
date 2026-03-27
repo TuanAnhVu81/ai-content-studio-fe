@@ -11,8 +11,8 @@ export function ChangePasswordPage() {
           Change password
         </h1>
         <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-          Update your password using the protected auth endpoint. This route is only
-          available after sign-in.
+          Update your password to keep your workspace secure and maintain access to
+          protected user and admin tools.
         </p>
       </div>
 

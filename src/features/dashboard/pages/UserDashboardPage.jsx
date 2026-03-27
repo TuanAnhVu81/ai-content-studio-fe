@@ -110,8 +110,8 @@ export function UserDashboardPage() {
               </div>
             </div>
             <p className="text-sm leading-7 text-slate-300">
-              The backend currently returns an absolute 30-day token total and the five
-              most recent content records, which is enough to anchor this first dashboard slice.
+              Keep an eye on campaign activity, recent draft output, and rolling AI
+              usage before moving into the editor or campaign workspace.
             </p>
           </div>
         </div>

@@ -49,7 +49,7 @@ export function AdminCampaignsPage() {
       <AdminHero
         eyebrow="Admin campaigns"
         title="Monitor campaign ownership and content volume across the workspace."
-        description="This table is read-only in Phase 5 and focuses on visibility: owner, lifecycle state, content count, and creation timeline."
+        description="Review campaign ownership, lifecycle state, content volume, and creation timeline across the workspace."
         actions={
           <Button
             variant="outline"

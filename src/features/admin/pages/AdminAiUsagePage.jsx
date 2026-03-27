@@ -59,7 +59,7 @@ export function AdminAiUsagePage() {
       <AdminHero
         eyebrow="Admin AI usage"
         title="Track token consumption across models and the most active users."
-        description="The current backend contract exposes aggregate token totals, model-level distribution, and the top ten users by AI usage."
+        description="Review aggregate token totals, model distribution, and the users driving the highest AI activity."
         actions={
           <div className="flex flex-wrap gap-3">
             <input
@@ -164,7 +164,11 @@ export function AdminAiUsagePage() {
                         border: "1px solid rgba(148,163,184,0.2)",
                       }}
                     />
-                    <Bar dataKey="total_tokens" fill="url(#tokensGradient)" radius={[12, 12, 0, 0]} />
+                    <Bar
+                      dataKey="total_tokens"
+                      fill="url(#tokensGradient)"
+                      radius={[12, 12, 0, 0]}
+                    />
                     <defs>
                       <linearGradient id="tokensGradient" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#3b82f6" />
@@ -218,7 +222,7 @@ export function AdminAiUsagePage() {
                             {entry.email}
                           </div>
                           <div className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                            Prompt {formatCount(entry.prompt_tokens)} · Response{" "}
+                            Prompt {formatCount(entry.prompt_tokens)} | Response{" "}
                             {formatCount(entry.response_tokens)}
                           </div>
                         </div>

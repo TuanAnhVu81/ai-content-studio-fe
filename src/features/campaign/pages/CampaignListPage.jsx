@@ -113,8 +113,8 @@ export function CampaignListPage() {
                 Organize campaigns before content production begins.
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Filter campaigns by lifecycle status, review campaign intent and
-                create new workspaces using the same form structure required by the backend.
+                Filter campaigns by lifecycle status, review campaign goals, and create
+                new workspaces for upcoming content production.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -174,8 +174,8 @@ export function CampaignListPage() {
               </div>
             </div>
             <p className="text-sm leading-7 text-slate-300">
-              Campaign records are isolated per authenticated user. Empty metadata
-              fields remain optional and are sent using snake_case.
+              Keep campaign planning, audience notes, and publishing goals organized
+              before moving into content generation.
             </p>
           </div>
         </div>

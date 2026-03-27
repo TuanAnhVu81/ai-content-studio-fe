@@ -16,8 +16,8 @@ export function FinalCtaSection() {
             Start today and give your content team one workspace to operate from.
           </h2>
           <p className="text-base leading-7 text-slate-200">
-            The landing page is now ready to route guests to login and registration.
-            The next phases only need to attach real auth and data flows to this shell.
+            Plan campaigns, generate AI-assisted drafts, review SEO suggestions, and
+            export banner creatives without bouncing between separate tools.
           </p>
         </div>
 
