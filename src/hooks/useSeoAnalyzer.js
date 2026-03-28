@@ -8,13 +8,14 @@ export function useSeoAnalyzer({
   keyword,
   metaTitle,
   metaDescription,
+  platform,
 }) {
   const [analysis, setAnalysis] = useState(() =>
     htmlContent?.trim()
-      ? seoCalculator({ htmlContent, keyword, metaTitle, metaDescription })
+      ? seoCalculator({ htmlContent, keyword, metaTitle, metaDescription, platform })
       : null
   );
-  const stableMetaKey = `${metaTitle}::${metaDescription}::${keyword}`;
+  const stableMetaKey = `${metaTitle}::${metaDescription}::${keyword}::${platform}`;
 
   const debouncedAnalyze = useMemo(
     () =>
@@ -30,7 +31,7 @@ export function useSeoAnalyzer({
   );
 
   useEffect(() => {
-    debouncedAnalyze({ htmlContent, keyword, metaTitle, metaDescription });
+    debouncedAnalyze({ htmlContent, keyword, metaTitle, metaDescription, platform });
 
     return () => {
       debouncedAnalyze.cancel();
@@ -43,7 +44,7 @@ export function useSeoAnalyzer({
       return;
     }
 
-    setAnalysis(seoCalculator({ htmlContent, keyword, metaTitle, metaDescription }));
+    setAnalysis(seoCalculator({ htmlContent, keyword, metaTitle, metaDescription, platform }));
   }, [stableMetaKey]);
 
   return analysis;

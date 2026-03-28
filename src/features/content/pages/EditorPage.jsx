@@ -6,9 +6,18 @@ import { Link, useParams } from "react-router-dom";
 import { buttonVariants } from "@/components/ui/button";
 import { AppSpinner } from "@/components/common/AppSpinner";
 import { queryKeys } from "@/constants/queryKeys";
+import {
+  getBannerTemplate,
+  getDefaultBannerTemplateKey,
+  listBannerTemplatesByFormat,
+} from "@/features/content/bannerTemplates";
 import { BannerPreview } from "@/features/content/components/BannerPreview";
 import { ContentEditor } from "@/features/content/components/ContentEditor";
 import { SeoSidebar } from "@/features/content/components/SeoSidebar";
+import {
+  createBannerConfig,
+  normalizeBannerConfig,
+} from "@/features/content/utils/bannerConfig";
 import { useBannerExport } from "@/hooks/useBannerExport";
 import { useSeoAnalyzer } from "@/hooks/useSeoAnalyzer";
 import { contentService } from "@/services/contentService";
@@ -25,6 +34,21 @@ function normalizeEditorDraft(content) {
   };
 }
 
+function buildBannerState(content, draft, format = "feed") {
+  const savedConfig = normalizeBannerConfig(content?.banner_config);
+
+  if (savedConfig) {
+    return savedConfig;
+  }
+
+  return createBannerConfig({
+    htmlContent: draft.generatedText,
+    metaDescription: draft.metaDescription,
+    fallbackHeadline: content?.target_keyword || "Campaign banner",
+    format,
+  });
+}
+
 export function EditorPage() {
   const queryClient = useQueryClient();
   const { id } = useParams();
@@ -36,7 +60,14 @@ export function EditorPage() {
   });
   const [submitError, setSubmitError] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [bannerTemplate, setBannerTemplate] = useState("feed");
+  const [bannerConfig, setBannerConfig] = useState(() =>
+    createBannerConfig({
+      htmlContent: "",
+      metaDescription: "",
+      fallbackHeadline: "Campaign banner",
+      format: "feed",
+    })
+  );
   const latestSavedRef = useRef(draft);
   const { isExporting, exportAndSave } = useBannerExport();
 
@@ -54,6 +85,7 @@ export function EditorPage() {
     const normalizedDraft = normalizeEditorDraft(contentQuery.data);
     setDraft(normalizedDraft);
     latestSavedRef.current = normalizedDraft;
+    setBannerConfig(buildBannerState(contentQuery.data, normalizedDraft));
   }, [contentQuery.data]);
 
   const analysis = useSeoAnalyzer({
@@ -61,6 +93,7 @@ export function EditorPage() {
     keyword: contentQuery.data?.target_keyword ?? "",
     metaTitle: draft.metaTitle,
     metaDescription: draft.metaDescription,
+    platform: contentQuery.data?.prompt_config?.platform ?? "",
   });
 
   const isDirty = useMemo(
@@ -121,6 +154,30 @@ export function EditorPage() {
   }
 
   const content = contentQuery.data;
+  const currentTemplate = getBannerTemplate(
+    bannerConfig.template_key,
+    bannerConfig.format
+  );
+  const availableTemplates = listBannerTemplatesByFormat(bannerConfig.format);
+
+  const handleBannerFormatChange = (format) => {
+    setBannerConfig((currentConfig) => ({
+      ...currentConfig,
+      format,
+      template_key: getDefaultBannerTemplateKey(format),
+    }));
+  };
+
+  const handleBannerReset = () => {
+    setBannerConfig(
+      createBannerConfig({
+        htmlContent: draft.generatedText,
+        metaDescription: draft.metaDescription,
+        fallbackHeadline: content.target_keyword || "Campaign banner",
+        format: bannerConfig.format,
+      })
+    );
+  };
 
   const handleBannerExport = async () => {
     setSubmitError("");
@@ -129,7 +186,8 @@ export function EditorPage() {
     try {
       await exportAndSave(bannerRef, id, {
         fileName: content.target_keyword || content.campaign_name || "content-banner",
-        template: bannerTemplate,
+        template: bannerConfig.format,
+        bannerConfig,
       });
       setFeedbackMessage("Banner exported, uploaded, and saved successfully.");
     } catch (error) {
@@ -316,96 +374,217 @@ export function EditorPage() {
 
         <div className="space-y-5">
           <SeoSidebar analysis={analysis} />
+        </div>
+      </section>
 
-          <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                Banner preview
-              </span>
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                    Export a campaign creative from this draft.
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                    Preview the headline and supporting copy, choose a format, then
-                    export a ready-to-share banner for this content record.
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+            Banner preview
+          </span>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                Export a campaign creative from this draft.
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Preview the creative on a real template, fine-tune the banner
+                copy, then export a ready-to-share asset for this content record.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6 p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950/60">
+              {["feed", "story"].map((templateOption) => {
+                const isActive = bannerConfig.format === templateOption;
+
+                return (
+                  <button
+                    key={templateOption}
+                    type="button"
+                    onClick={() => handleBannerFormatChange(templateOption)}
+                    className={cn(
+                      "rounded-full px-4 py-2 text-sm font-semibold transition",
+                      isActive
+                        ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                        : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+                    )}
+                  >
+                    {templateOption === "feed" ? "Feed" : "Story"}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {content.banner_url ? (
+                <a
+                  href={content.banner_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={cn(buttonVariants({ variant: "outline" }))}
+                >
+                  <ExternalLink className="mr-2 size-4" />
+                  Open saved banner
+                </a>
+              ) : null}
+              <button
+                type="button"
+                className={cn(
+                  buttonVariants({
+                    className:
+                      "bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200",
+                  })
+                )}
+                onClick={handleBannerExport}
+                disabled={
+                  isExporting ||
+                  !draft.generatedText.trim() ||
+                  !bannerConfig.headline.trim()
+                }
+              >
+                {isExporting ? (
+                  <>
+                    <LoaderCircle className="mr-2 size-4 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 size-4" />
+                    Export & save banner
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              Style
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {availableTemplates.map((templateOption) => {
+                const isActive = bannerConfig.template_key === templateOption.key;
+
+                return (
+                  <button
+                    key={templateOption.key}
+                    type="button"
+                    onClick={() =>
+                      setBannerConfig((currentConfig) => ({
+                        ...currentConfig,
+                        template_key: templateOption.key,
+                      }))
+                    }
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-sm font-medium transition",
+                      isActive
+                        ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-white"
+                    )}
+                  >
+                    {templateOption.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[minmax(340px,0.88fr)_minmax(0,1.12fr)]">
+            <section className="space-y-4 rounded-[1.75rem] border border-slate-200 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-950/40">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-[24rem] xl:max-w-[20rem] 2xl:max-w-[24rem]">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                    Banner copy
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    Adjust the banner headline, supporting copy, and CTA
+                    without changing the article body.
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-6 p-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950/60">
-                  {["feed", "story"].map((templateOption) => {
-                    const isActive = bannerTemplate === templateOption;
-
-                    return (
-                      <button
-                        key={templateOption}
-                        type="button"
-                        onClick={() => setBannerTemplate(templateOption)}
-                        className={cn(
-                          "rounded-full px-4 py-2 text-sm font-semibold transition",
-                          isActive
-                            ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
-                            : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-                        )}
-                      >
-                        {templateOption === "feed" ? "Feed" : "Story"}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  {content.banner_url ? (
-                    <a
-                      href={content.banner_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={cn(buttonVariants({ variant: "outline" }))}
-                    >
-                      <ExternalLink className="mr-2 size-4" />
-                      Open saved banner
-                    </a>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={cn(
-                      buttonVariants({
-                        className:
-                          "bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200",
-                      })
-                    )}
-                    onClick={handleBannerExport}
-                    disabled={isExporting || !draft.generatedText.trim()}
-                  >
-                    {isExporting ? (
-                      <>
-                        <LoaderCircle className="mr-2 size-4 animate-spin" />
-                        Exporting...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="mr-2 size-4" />
-                        Export & save banner
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleBannerReset}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "self-start whitespace-nowrap"
+                  )}
+                >
+                  Refresh from content
+                </button>
               </div>
 
-              <BannerPreview
-                ref={bannerRef}
-                template={bannerTemplate}
-                htmlContent={draft.generatedText}
-                fallbackHeadline={content.target_keyword || "Campaign banner"}
-                fallbackSubtext={draft.metaDescription || content.campaign_name}
-              />
+              <div className="grid gap-4">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Headline
+                  </span>
+                  <textarea
+                    rows={4}
+                    value={bannerConfig.headline}
+                    maxLength={180}
+                    onChange={(event) =>
+                      setBannerConfig((currentConfig) => ({
+                        ...currentConfig,
+                        headline: event.target.value,
+                      }))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Supporting copy
+                  </span>
+                  <textarea
+                    rows={4}
+                    value={bannerConfig.subtext}
+                    maxLength={240}
+                    onChange={(event) =>
+                      setBannerConfig((currentConfig) => ({
+                        ...currentConfig,
+                        subtext: event.target.value,
+                      }))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    CTA label
+                  </span>
+                  <input
+                    type="text"
+                    value={bannerConfig.cta}
+                    maxLength={80}
+                    onChange={(event) =>
+                      setBannerConfig((currentConfig) => ({
+                        ...currentConfig,
+                        cta: event.target.value,
+                      }))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                  Active template:{" "}
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {currentTemplate.label}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <div className="min-w-0 overflow-hidden">
+              <BannerPreview ref={bannerRef} bannerConfig={bannerConfig} />
             </div>
-          </section>
+          </div>
         </div>
       </section>
     </div>

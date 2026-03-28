@@ -34,7 +34,7 @@ export function useBannerExport() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async ({ bannerRef, contentId, fileName, template }) => {
+    mutationFn: async ({ bannerRef, contentId, fileName, template, bannerConfig }) => {
       const node = bannerRef?.current;
 
       if (!node) {
@@ -79,7 +79,10 @@ export function useBannerExport() {
         throw new Error("Cloudinary did not return secure_url.");
       }
 
-      const savedContent = await contentService.updateBanner(contentId, secureUrl);
+      const savedContent = await contentService.updateBanner(contentId, {
+        banner_url: secureUrl,
+        banner_config: bannerConfig,
+      });
       triggerDownload(dataUrl, `${normalizeFilename(fileName)}-${template}.png`);
 
       return {
@@ -103,12 +106,14 @@ export function useBannerExport() {
     async exportAndSave(bannerRef, contentId, options = {}) {
       const fileName = options.fileName ?? "content-banner";
       const template = options.template ?? "feed";
+      const bannerConfig = options.bannerConfig ?? null;
 
       return mutation.mutateAsync({
         bannerRef,
         contentId,
         fileName,
         template,
+        bannerConfig,
       });
     },
   };

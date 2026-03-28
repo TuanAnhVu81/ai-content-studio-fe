@@ -44,17 +44,18 @@ function ChecklistItem({ label, passed }) {
 export function SeoSidebar({ analysis }) {
   const status = getStatus(analysis);
   const score = analysis?.score ?? null;
+  const checks = analysis?.checks ?? [];
 
   return (
     <aside className="space-y-5">
       <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-            SEO analysis
+            Content analysis
           </span>
           <div className="mt-4 flex items-center justify-between gap-4">
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-              SEO sidebar
+              Content quality
             </h2>
             <span
               className={cn(
@@ -67,12 +68,17 @@ export function SeoSidebar({ analysis }) {
           </div>
         </div>
 
-        <div className="space-y-5 p-6">
+          <div className="space-y-5 p-6">
           <div className="rounded-[1.75rem] bg-slate-950 p-5 text-white">
             <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Score</div>
             <div className="mt-3 text-4xl font-semibold tracking-tight">
               {score ?? "--"}/100
             </div>
+            {analysis?.platform_rule_label ? (
+              <div className="mt-2 text-sm text-slate-400">
+                Optimized for {analysis.platform_rule_label}
+              </div>
+            ) : null}
             <div className="mt-4 h-3 rounded-full bg-white/10">
               <div
                 className="h-3 rounded-full bg-gradient-to-r from-brand-primary via-sky-500 to-brand-secondary transition-[width] duration-500"
@@ -82,25 +88,36 @@ export function SeoSidebar({ analysis }) {
           </div>
 
           <div className="space-y-3">
-            <ChecklistItem label="Keyword appears in H1" passed={analysis?.has_h1 ?? false} />
-            <ChecklistItem
-              label="Keyword density between 1% and 3%"
-              passed={
-                analysis
-                  ? analysis.keyword_density >= 1 && analysis.keyword_density <= 3
-                  : false
-              }
-            />
-            <ChecklistItem label="At least two H2 headings" passed={analysis?.has_h2 ?? false} />
-            <ChecklistItem
-              label="Content length above 300 words"
-              passed={(analysis?.word_count ?? 0) >= 300}
-            />
-            <ChecklistItem label="Meta title is valid" passed={analysis?.meta_title_valid ?? false} />
-            <ChecklistItem
-              label="Meta description is valid"
-              passed={analysis?.meta_description_valid ?? false}
-            />
+            {checks.length ? (
+              checks.map((check) => (
+                <ChecklistItem key={check.key} label={check.label} passed={check.passed} />
+              ))
+            ) : (
+              <>
+                <ChecklistItem label="Keyword appears in H1" passed={analysis?.has_h1 ?? false} />
+                <ChecklistItem
+                  label="Keyword density between 1% and 3%"
+                  passed={
+                    analysis
+                      ? analysis.keyword_density >= 1 && analysis.keyword_density <= 3
+                      : false
+                  }
+                />
+                <ChecklistItem label="At least two H2 headings" passed={analysis?.has_h2 ?? false} />
+                <ChecklistItem
+                  label={analysis?.length_rule_label ?? "Content length above 300 words"}
+                  passed={analysis?.length_rule_passed ?? false}
+                />
+                <ChecklistItem
+                  label="Meta title is valid"
+                  passed={analysis?.meta_title_valid ?? false}
+                />
+                <ChecklistItem
+                  label="Meta description is valid"
+                  passed={analysis?.meta_description_valid ?? false}
+                />
+              </>
+            )}
           </div>
         </div>
       </section>

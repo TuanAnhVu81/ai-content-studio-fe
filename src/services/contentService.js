@@ -33,6 +33,21 @@ function normalizeSeoMetadata(seoMetadata) {
   };
 }
 
+function normalizeBannerConfig(bannerConfig) {
+  if (!bannerConfig) {
+    return null;
+  }
+
+  return {
+    format: bannerConfig.format ?? "feed",
+    template_key:
+      bannerConfig.template_key ?? bannerConfig.templateKey ?? "feed-editorial",
+    headline: bannerConfig.headline ?? "",
+    subtext: bannerConfig.subtext ?? "",
+    cta: bannerConfig.cta ?? "",
+  };
+}
+
 function normalizeContent(content) {
   if (!content) {
     return null;
@@ -57,6 +72,9 @@ function normalizeContent(content) {
       content.seo_metadata ?? content.seoMetadata
     ),
     banner_url: content.banner_url ?? content.bannerUrl ?? null,
+    banner_config: normalizeBannerConfig(
+      content.banner_config ?? content.bannerConfig
+    ),
     status: content.status ?? "DRAFT",
     created_at: content.created_at ?? content.createdAt ?? null,
     updated_at: content.updated_at ?? content.updatedAt ?? null,
@@ -148,9 +166,10 @@ export const contentService = {
 
     return normalizeContent(unwrapPayload(response.data));
   },
-  async updateBanner(id, bannerUrl) {
+  async updateBanner(id, payload) {
     const response = await axiosInstance.put(API_ROUTES.contents.banner(id), {
-      banner_url: bannerUrl,
+      banner_url: payload.banner_url,
+      banner_config: payload.banner_config,
     });
 
     return normalizeContent(unwrapPayload(response.data));
