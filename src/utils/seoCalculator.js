@@ -8,6 +8,7 @@ function normalizeTextInput(value) {
 
 function normalizeForSearch(value) {
   return normalizeTextInput(value)
+    .replace(/[đĐ]/g, "d")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9\s]/g, " ")
